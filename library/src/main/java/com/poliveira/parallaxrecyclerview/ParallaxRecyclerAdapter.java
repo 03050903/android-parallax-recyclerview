@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.TranslateAnimation;
@@ -22,9 +21,9 @@ public abstract class ParallaxRecyclerAdapter<T> extends RecyclerView.Adapter<Re
         public static final int FIRST_VIEW = 3;
     }
 
-    public abstract void onBindViewHolderImpl(RecyclerView.ViewHolder viewHolder,ParallaxRecyclerAdapter<T> adapter,  int i);
+    public abstract void onBindViewHolderImpl(RecyclerView.ViewHolder viewHolder, ParallaxRecyclerAdapter<T> adapter, int i);
 
-    public abstract RecyclerView.ViewHolder onCreateViewHolderImpl(ViewGroup viewGroup,ParallaxRecyclerAdapter<T> adapter, int i);
+    public abstract RecyclerView.ViewHolder onCreateViewHolderImpl(ViewGroup viewGroup, ParallaxRecyclerAdapter<T> adapter, int i);
 
     public abstract int getItemCountImpl(ParallaxRecyclerAdapter<T> adapter);
 
@@ -103,7 +102,7 @@ public abstract class ParallaxRecyclerAdapter<T> extends RecyclerView.Adapter<Re
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int i) {
         if (i != 0 && mHeader != null) {
-            onBindViewHolderImpl(viewHolder,this, i - 1);
+            onBindViewHolderImpl(viewHolder, this, i - 1);
         } else if (i != 0) {
             onBindViewHolderImpl(viewHolder, this, i);
         }
@@ -180,13 +179,22 @@ public abstract class ParallaxRecyclerAdapter<T> extends RecyclerView.Adapter<Re
     }
 
     public void removeItem(T item) {
-        int position = mData.indexOf(item);
-        if (position < 0)
-            return;
+        int adapterPosition = getAdapterPosition(item);
+        if (adapterPosition < 0) return;
         mData.remove(item);
-        notifyItemRemoved(position + (mHeader == null ? 0 : 1));
+        notifyItemRemoved(adapterPosition);
     }
 
+    public void changeItem(T item) {
+        int adapterPosition = getAdapterPosition(item);
+        if (adapterPosition < 0) return;
+        notifyItemChanged(adapterPosition);
+    }
+
+    public int getAdapterPosition(T item) {
+        int position = mData.indexOf(item);
+        return position + (mHeader == null ? 0 : 1);
+    }
 
     public int getItemCount() {
         return getItemCountImpl(this) + (mHeader == null ? 0 : 1);
